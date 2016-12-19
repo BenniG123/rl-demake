@@ -86,13 +86,17 @@ void rl_draw_screen(void) {
 	// Draw metasprites
 	spr=0;
 
-	// TODO - Move Camera
+	// Move Camera
 	if (ball_screen_x < BALL_CAMERA_PAN_MIN_THRESHOLD && game.camera_x > 0) {
 		game.camera_x = ball.x - BALL_CAMERA_PAN_MIN_THRESHOLD;
 	}
 	else if(ball_screen_x > BALL_CAMERA_PAN_MAX_THRESHOLD && game.camera_x < CAMERA_MAX_POSITION) {
 		// Move Camera
 		game.camera_x = ball.x - BALL_CAMERA_PAN_MAX_THRESHOLD;
+	}
+
+	if (game.camera_x > UNSIGNED_INT_OVERFLOW) {
+		game.camera_x = 0;
 	}
 
 	// Draw ball
@@ -247,6 +251,7 @@ void rl_physics_step(void) {
 		ball.vel_y = -ball.vel_y;
 	}
 	else if (ball.y > UNSIGNED_INT_OVERFLOW) {
+		ball.y = 0;
 		ball.vel_y = -ball.vel_y;
 	}
 
