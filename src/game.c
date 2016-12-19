@@ -2,6 +2,8 @@
 //and simple collision detection that changes palette
 
 #include "neslib.h"
+#include "rl_types.h"
+#include "rl_physics.h"
 
 // Screen Name Tables
 // #include "title_name.h"
