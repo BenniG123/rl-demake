@@ -1,3 +1,7 @@
+typedef enum {
+	LLLL, LLLU, LLUU, LUUU, UUUU, RUUU, RRUU, RRRU, RRRR, RRRD, RRDD, RDDD, DDDD, LDDD, LLDD, LLLD
+} DIRECTION;
+
 typedef struct game_t {
 	unsigned int time;
 	unsigned char second_counter;
@@ -8,12 +12,12 @@ typedef struct game_t {
 
 typedef struct car_t {
 	unsigned int x;
-	unsigned int y;
-	unsigned int z;
+	unsigned char y;
+	unsigned char z;
 	signed char vel_x;
 	signed char vel_y;
 	signed char vel_z;
-	unsigned char direction;
+	DIRECTION direction;
 	unsigned char height;
 	unsigned char boost;
 	unsigned char is_boosting;
@@ -22,11 +26,11 @@ typedef struct car_t {
 
 typedef struct ball_t {
 	unsigned int x;
-	unsigned int y;
-	unsigned int z;
+	unsigned char y;
+	unsigned char z;
 	signed char vel_x;
 	signed char vel_y;
 	signed char vel_z;
-	unsigned char direction;
+	DIRECTION direction;
 	unsigned char height;
 } ball_t;
