@@ -3,6 +3,7 @@ typedef struct game_t {
 	unsigned char second_counter;
 	unsigned char score_one;
 	unsigned char score_two;
+	unsigned int camera_x;
 } game_t;
 
 typedef struct car_t {

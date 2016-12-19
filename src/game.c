@@ -14,12 +14,19 @@
 // #include "dfh_stadium_name.h"
 // #include "beckwith_park_nam.h"
 
-//variables
+// For drawing the sprites on the correct spot on the screen
+static unsigned char ball_screen_x;
+static unsigned char ball_screen_y;
+static unsigned char car_1_screen_x;
+static unsigned char car_1_screen_y;
+static unsigned char car_2_screen_x;
+static unsigned char car_2_screen_y;
 
-static unsigned char i;
-static unsigned char pad,spr;
-static unsigned char touch;
-static unsigned char frame;
+// Controller input
+static unsigned char pad;
+
+// Sprite drawing
+static unsigned char spr;
 
 // Cars, Ball, and Game
 static car_t car_1;
@@ -74,9 +81,18 @@ void main(void)
 		// Draw metasprites
 		spr=0;
 
-		spr=oam_meta_spr(ball.x, ball.y, spr, car_1_sprite_l);
-		spr=oam_meta_spr(car_1.x,  car_1.y, spr,car_1_sprite_l);
-		spr=oam_meta_spr(car_2.x, car_2.y, spr, car_1_sprite_l);
+		// Translate worldspace to screen space
+		ball_screen_x = ball.x - game.camera_x;
+		ball_screen_y = ball.y + ball.z;
+		car_1_screen_x = car_1.x - game.camera_x;
+		car_1_screen_y = car_1.y + car_1.z;
+		car_2_screen_x = car_2.x - game.camera_x;
+		car_2_screen_y = car_2.y + car_2.z;
+
+		// Draw each sprite
+		spr=oam_meta_spr(ball_screen_x, ball_screen_y, spr, ball_sprite_l);
+		spr=oam_meta_spr(car_1_screen_x,  car_1_screen_y, spr,car_1_sprite_l);
+		spr=oam_meta_spr(car_2_screen_x, car_2_screen_y, spr, car_2_sprite_l);
 
 		// Player 1 input
 		pad=pad_poll(0);
@@ -97,12 +113,15 @@ void main(void)
 }
 
 void rl_init(void) {
+	// Initialize physics position and velocity
 	car_1.x = 50;
 	car_1.y = 50;
 	car_1.z = 0;
 	car_1.vel_x = 0;
 	car_1.vel_y = 0;
 	car_1.vel_z = 0;
+	car_1.is_boosting = 0;
+	car_1.boost = 33;
 
 	car_2.x = 150;
 	car_2.y = 50;
@@ -110,6 +129,8 @@ void rl_init(void) {
 	car_2.vel_x = 0;
 	car_2.vel_y = 0;
 	car_2.vel_z = 0;
+	car_2.is_boosting = 0;
+	car_2.boost = 33;
 
 	ball.x = 100;
 	ball.y = 100;
@@ -117,4 +138,17 @@ void rl_init(void) {
 	ball.vel_x = 0;
 	ball.vel_y = 0;
 	ball.vel_z = 0;
+
+	// First camera position
+	game.camera_x = 0;
+
+	// Seconds left in gameplay
+	game.time = 300;
+
+	// Counter in each second (60 Hz gameplay)
+	game.second_counter = 0;
+
+	// Init player scores
+	game.score_one = 0;
+	game.score_two = 0;
 }
