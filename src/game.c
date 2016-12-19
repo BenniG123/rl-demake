@@ -29,6 +29,9 @@ static unsigned char pad;
 // Sprite drawing
 static unsigned char spr;
 
+// Decceleration variable
+static unsigned char decel;
+
 // Cars, Ball, and Game
 static car_t car_1;
 static car_t car_2;
@@ -51,23 +54,13 @@ void main(void)
 	while(1)
 	{
 		ppu_wait_frame();//wait for next TV frame
-
-		// Player 1 input
-		pad=pad_poll(0);
-
-		if(pad&PAD_LEFT  && car_1.x >   0) car_1.x -= 2;
-		if(pad&PAD_RIGHT && car_1.x < FIELD_WIDTH) car_1.x += 2;
-		if(pad&PAD_UP    && car_1.y >   0) car_1.y -= 2;
-		if(pad&PAD_DOWN  && car_1.y < FIELD_HEIGHT) car_1.y += 2;
-
-		// Player 2 input
-		pad=pad_poll(1);
-
-		if(pad&PAD_LEFT  && car_2.x >   0) car_2.x -= 2;
-		if(pad&PAD_RIGHT && car_2.x < FIELD_WIDTH) car_2.x += 2;
-		if(pad&PAD_UP    && car_2.y >   0) car_2.y -= 2;
-		if(pad&PAD_DOWN  && car_2.y < FIELD_HEIGHT) car_2.y += 2;
 		
+		++game.second_counter;
+		if (game.second_counter == FPS) {
+			game.second_counter = 0;
+			--game.time;
+		}
+
 		rl_physics_step();
 		rl_draw_screen();
 	}
@@ -96,32 +89,32 @@ void rl_draw_screen(void) {
 	} */
 
 	// Draw ball
-	spr=oam_meta_spr(ball_screen_x, ball_screen_y, spr, ball_sprite_l);
+	spr = oam_meta_spr(ball_screen_x, ball_screen_y, spr, ball_sprite_l);
 
 	if (car_1.x < game.camera_x) {
 		// Draw left arrow
-		spr=oam_meta_spr(0, car_1_screen_y, spr, ball_sprite_l);
+		spr = oam_meta_spr(0, car_1_screen_y, spr, ball_sprite_l);
 	}
 	else if (car_1_screen_x > SPRITE_DRAW_WIDTH) {
 		// Draw right arrow
-		spr=oam_meta_spr(SPRITE_DRAW_WIDTH, car_1_screen_y, spr, ball_sprite_l);
+		spr = oam_meta_spr(SPRITE_DRAW_WIDTH, car_1_screen_y, spr, ball_sprite_l);
 	}
 	else {
 		// Draw car
-		spr=oam_meta_spr(car_1_screen_x, car_1_screen_y, spr,car_1_sprite_l);
+		spr = oam_meta_spr(car_1_screen_x, car_1_screen_y, spr,car_1_sprite_l);
 	}
 
 	if (car_2.x < game.camera_x) {
 		// Draw left arrow
-		spr=oam_meta_spr(car_2_screen_x, car_2_screen_y, spr, ball_sprite_l);
+		spr = oam_meta_spr(car_2_screen_x, car_2_screen_y, spr, ball_sprite_l);
 	}
 	else if (car_2_screen_x > SPRITE_DRAW_WIDTH) {
 		// Draw right arrow
-		spr=oam_meta_spr(SPRITE_DRAW_WIDTH, car_2_screen_y, spr, ball_sprite_l);
+		spr = oam_meta_spr(SPRITE_DRAW_WIDTH, car_2_screen_y, spr, ball_sprite_l);
 	}
 	else {
 		// Draw car
-		spr=oam_meta_spr(car_2_screen_x, car_2_screen_y, spr, car_2_sprite_l);
+		spr = oam_meta_spr(car_2_screen_x, car_2_screen_y, spr, car_2_sprite_l);
 	}
 }
 
@@ -169,5 +162,59 @@ void rl_init(void) {
 }
 
 void rl_physics_step(void) {
+	// Player 1 input
+	pad = pad_poll(0);
+	decel = game.second_counter % DECCEL_FREQ == 0;
+
+	if (pad&PAD_LEFT  && car_1.vel_x > MAX_NEG_VELOCITY) {
+		car_1.vel_x -= ACCEL;
+	}
+	else if (pad&PAD_RIGHT && car_1.vel_x < MAX_POS_VELOCITY) {
+		car_1.vel_x += ACCEL;
+	}
+	else if (pad&PAD_A && car_1.z == 0) {
+		// Jump
+	}
+	// DECCEL once ever DECCEL_FREQ frames
+	else if (car_1.z == 0 && car_1.vel_x > 0 && decel) {
+		car_1.vel_x -= DECCEL;
+	}
+	// DECCEL once ever DECCL_FREQ frames
+	else if (car_1.z == 0 && car_1.vel_x < 0 && decel) {
+		car_1.vel_x += DECCEL;
+	}
+
+	if (pad&PAD_UP  && car_1.vel_y > MAX_NEG_VELOCITY) {
+		car_1.vel_y -= ACCEL;
+	}
+	else if (pad&PAD_DOWN && car_1.vel_y < MAX_POS_VELOCITY) {
+		car_1.vel_y += ACCEL;
+	}
+	else if (pad&PAD_A && car_1.z == 0) {
+		// Jump
+	}
+	// DECCEL once ever DECCEL_FREQ frames
+	else if (car_1.z == 0 && car_1.vel_y > 0 && decel) {
+		car_1.vel_y -= DECCEL;
+	}
+	// DECCEL once ever DECCL_FREQ frames
+	else if (car_1.z == 0 && car_1.vel_y < 0 && decel) {
+		car_1.vel_y += DECCEL;
+	}
+
+
+	car_1.x += car_1.vel_x;
+	car_1.y += car_1.vel_y;
+
+	// Player 2 input
+	pad = pad_poll(1);
+
+	if(pad&PAD_LEFT  && car_2.vel_x > MAX_NEG_VELOCITY) car_2.vel_x -= ACCEL;
+	if(pad&PAD_RIGHT && car_2.vel_x < MAX_POS_VELOCITY) car_2.vel_x += ACCEL;
+	if(pad&PAD_UP    && car_2.vel_y > MAX_NEG_VELOCITY) car_2.vel_y -= ACCEL;
+	if(pad&PAD_DOWN  && car_2.vel_y < MAX_POS_VELOCITY) car_2.vel_y += ACCEL;
+
+	car_2.x += car_2.vel_x;
+	car_2.y += car_2.vel_y;
 
 }
