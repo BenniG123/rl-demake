@@ -20,7 +20,11 @@ static unsigned char pad,spr;
 static unsigned char touch;
 static unsigned char frame;
 
-//two players coords
+// Cars, Ball, and Game
+static car_t car_1;
+static car_t car_2;
+static ball_t ball;
+static game_t game;
 
 static unsigned char cat_x[2];
 static unsigned char cat_y[2];
