@@ -87,9 +87,13 @@ void rl_draw_screen(void) {
 	spr=0;
 
 	// TODO - Move Camera
-	/* if (ball.x < game.camera_x || ball_screen_x > SPRITE_DRAW_WIDTH) {
+	if (ball_screen_x < BALL_CAMERA_PAN_MIN_THRESHOLD && game.camera_x > 0) {
+		game.camera_x -= 2;
+	}
+	else if(ball_screen_x > BALL_CAMERA_PAN_MAX_THRESHOLD && game.camera_x < CAMERA_MAX_POSITION) {
 		// Move Camera
-	} */
+		game.camera_x += 2;
+	}
 
 	// Draw ball
 	spr = oam_meta_spr(ball_screen_x, ball_screen_y, spr, ball_sprite_l);
@@ -176,19 +180,95 @@ void rl_physics_step(void) {
 
 	if (car_1.z == 0 && car_1.vel_z < 0) {
 		car_1.vel_z = 0;
+		car_1.jump_counter = 0;
 	}
+
+	rl_car_2_input();
 
 	car_1.x += car_1.vel_x;
 	car_1.y += car_1.vel_y;
 	car_1.z += car_1.vel_z;
 
-	// Handle Collisions
-
-	rl_car_2_input();
-
 	car_2.x += car_2.vel_x;
 	car_2.y += car_2.vel_y;
 	car_2.z += car_2.vel_z;
+
+	// Handle Collisions
+	if (car_1.x > ball.x - 24 && car_1.x < ball.x + 24) {
+		if (car_1.y > ball.y - 24 && car_1.y < ball.y + 24) {
+			if (car_1.z > ball.z - 5 && car_1.z < ball.z + 5) {
+				// Handle ball collision
+				ball.vel_x = car_1.vel_x;
+				ball.vel_y = car_1.vel_y;
+			}
+		}
+	}
+
+	if (car_2.x > ball.x - 24 && car_2.x < ball.x + 24) {
+		if (car_2.y > ball.y - 24 && car_2.y < ball.y + 24) {
+			if (car_2.z > ball.z - 5 && car_2.z < ball.z + 5) {
+				// Handle ball collision
+				// ball.vel_x = car_2.vel_x;
+				// ball.vel_y = car_2.vel_y;
+			}
+		}
+	}
+
+	// Field bounds
+	if (car_1.x > FIELD_WIDTH && car_1.x < UNSIGNED_INT_OVERFLOW) {
+		car_1.x = FIELD_WIDTH;
+		car_1.vel_x = 0;
+	}
+	else if (car_1.x > UNSIGNED_INT_OVERFLOW) {
+		car_1.x = 0;
+		car_1.vel_x = 0;
+	}
+
+	if (car_1.y > FIELD_HEIGHT && car_1.y < UNSIGNED_INT_OVERFLOW) {
+		car_1.y = FIELD_HEIGHT;
+		car_1.vel_y = 0;
+	}
+	else if (car_1.y > UNSIGNED_INT_OVERFLOW) {
+		car_1.y = 0;
+		car_1.vel_y = 0;
+	}
+
+	if (ball.x > FIELD_WIDTH && ball.x < UNSIGNED_INT_OVERFLOW) {
+		ball.x = FIELD_WIDTH;
+		ball.vel_x = 0;
+	}
+	else if (ball.x > UNSIGNED_INT_OVERFLOW) {
+		ball.x = 0;
+		ball.vel_x = 0;
+	}
+
+	if (ball.y > FIELD_HEIGHT && ball.y < UNSIGNED_INT_OVERFLOW) {
+		ball.y = FIELD_HEIGHT;
+		ball.vel_y = 0;
+	}
+	else if (ball.y > UNSIGNED_INT_OVERFLOW) {
+		ball.y = 0;
+		ball.vel_y = 0;
+	}
+
+	if (car_2.x > FIELD_WIDTH && car_2.x < UNSIGNED_INT_OVERFLOW) {
+		car_2.x = FIELD_WIDTH;
+	}
+	else if (car_2.x > UNSIGNED_INT_OVERFLOW) {
+		car_2.x = 0;
+	}
+
+	if (car_2.y > FIELD_HEIGHT && car_2.vel_y < 0) {
+		car_2.y = FIELD_HEIGHT;
+	}
+	else if (car_2.y > FIELD_HEIGHT && car_2.vel_y >= 0) {
+		car_2.y = 0;
+	}
+
+
+	ball.x += ball.vel_x;
+	ball.y += ball.vel_y;
+	ball.z += ball.vel_z;
 
 }
 
@@ -201,6 +281,7 @@ void rl_car_1_input(void) {
 	if (grounded) {
 		if (pad&PAD_A && car_1.vel_z == 0) {
 			// Jump
+			++car_1.jump_counter;
 			car_1.vel_z = JUMP_ACCEL;
 		}
 		else if (pad&PAD_LEFT && car_1.vel_x > MAX_NEG_VELOCITY) {

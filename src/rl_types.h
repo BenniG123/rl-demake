@@ -12,7 +12,7 @@ typedef struct game_t {
 
 typedef struct car_t {
 	unsigned int x;
-	unsigned char y;
+	unsigned int y;
 	signed char z;
 	signed char vel_x;
 	signed char vel_y;
@@ -22,12 +22,13 @@ typedef struct car_t {
 	unsigned char boost;
 	unsigned char is_boosting;
 	unsigned char flip_state;
+	unsigned char jump_counter;
 } car_t;
 
 typedef struct ball_t {
 	unsigned int x;
-	unsigned char y;
-	unsigned char z;
+	unsigned int y;
+	signed char z;
 	signed char vel_x;
 	signed char vel_y;
 	signed char vel_z;
