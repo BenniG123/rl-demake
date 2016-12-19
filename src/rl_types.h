@@ -13,7 +13,7 @@ typedef struct game_t {
 typedef struct car_t {
 	unsigned int x;
 	unsigned char y;
-	unsigned char z;
+	signed char z;
 	signed char vel_x;
 	signed char vel_y;
 	signed char vel_z;

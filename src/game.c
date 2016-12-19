@@ -170,6 +170,14 @@ void rl_physics_step(void) {
 	
 	rl_car_1_input();
 
+	if (decel && car_1.z > 0) {
+		--car_1.vel_z;
+	}
+
+	if (car_1.z == 0 && car_1.vel_z < 0) {
+		car_1.vel_z = 0;
+	}
+
 	car_1.x += car_1.vel_x;
 	car_1.y += car_1.vel_y;
 	car_1.z += car_1.vel_z;
@@ -191,7 +199,7 @@ void rl_car_1_input(void) {
 	grounded = car_1.z == 0;
 
 	if (grounded) {
-		if (pad&PAD_A) {
+		if (pad&PAD_A && car_1.vel_z == 0) {
 			// Jump
 			car_1.vel_z = JUMP_ACCEL;
 		}
@@ -233,7 +241,7 @@ void rl_car_2_input(void) {
 	grounded = car_2.z == 0;
 
 	if (grounded) {
-		if (pad&PAD_A) {
+		if (pad&PAD_A && car_2.vel_z == 0) {
 			// Jump
 			car_2.vel_z = JUMP_ACCEL;
 		}

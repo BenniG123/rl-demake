@@ -4,7 +4,7 @@
 #define SPRITE_DRAW_WIDTH 236
 #define SCREEN_HEIGHT 240
 #define ACCEL 1
-#define JUMP_ACCEL 3
+#define JUMP_ACCEL 5
 #define DECCEL 1
 #define BOOST_ACCEL 4
 #define MAX_POS_VELOCITY 3
