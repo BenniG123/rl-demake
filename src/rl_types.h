@@ -1,5 +1,3 @@
-
-
 typedef struct game_t {
 	unsigned int time;
 	unsigned char second_counter;
@@ -8,9 +6,9 @@ typedef struct game_t {
 } game_t;
 
 typedef struct car_t {
-	unsigned int pos_x;
-	unsigned int pos_y;
-	unsigned int pos_z;
+	unsigned int x;
+	unsigned int y;
+	unsigned int z;
 	signed char vel_x;
 	signed char vel_y;
 	signed char vel_z;
@@ -22,9 +20,9 @@ typedef struct car_t {
 } car_t;
 
 typedef struct ball_t {
-	unsigned int pos_x;
-	unsigned int pos_y;
-	unsigned int pos_z;
+	unsigned int x;
+	unsigned int y;
+	unsigned int z;
 	signed char vel_x;
 	signed char vel_y;
 	signed char vel_z;

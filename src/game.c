@@ -3,7 +3,8 @@
 
 #include "neslib.h"
 #include "rl_types.h"
-#include "rl_physics.h"
+#include "rl_engine.h"
+#include "rl_metasprites.h"
 
 // Screen Name Tables
 // #include "title_name.h"
@@ -26,115 +27,94 @@ static car_t car_2;
 static ball_t ball;
 static game_t game;
 
-static unsigned char cat_x[2];
-static unsigned char cat_y[2];
+// first player metasprite array
+// unsigned char* const sprListPlayer1[]={ car_1_sprite_u, car_1_sprite_lu, car_1_sprite_l, car_1_sprite_ld, car_1_sprite_d};
 
-
-//first player metasprite, data structure explained in neslib.h
-
-const unsigned char metaCat1[]={
-	0,	0,	0x50,	0,
-	8,	0,	0x51,	0,
-	16,	0,	0x52,	0,
-	0,	8,	0x60,	0,
-	8,	8,	0x61,	0,
-	16,	8,	0x62,	0,
-	0,	16,	0x70,	0,
-	8,	16,	0x71,	0,
-	16,	16,	0x72,	0,
-	128
-};
-
-//second player metasprite, the only difference is palette number
-
-const unsigned char metaCat2[]={
-	0,	0,	0x50,	1,
-	8,	0,	0x51,	1,
-	16,	0,	0x52,	1,
-	0,	8,	0x60,	1,
-	8,	8,	0x61,	1,
-	16,	8,	0x62,	1,
-	0,	16,	0x70,	1,
-	8,	16,	0x71,	1,
-	16,	16,	0x72,	1,
-	128
-};
-
-const unsigned char metaCat3[]={
-	0,	0,	0x50,	2,
-	8,	0,	0x51,	2,
-	16,	0,	0x52,	2,
-	0,	8,	0x60,	2,
-	8,	8,	0x61,	2,
-	16,	8,	0x62,	2,
-	0,	16,	0x70,	2,
-	8,	16,	0x71,	2,
-	16,	16,	0x72,	2,
-	128
-};
-
-
+// second player metasprite array
+// const unsigned char* const sprListPlayer2[]={ car_2_sprite_u, car_2_sprite_lu, car_2_sprite_l, car_2_sprite_ld, car_2_sprite_d};
 
 void main(void)
 {
 	ppu_on_all();//enable rendering
 
-	//set initial coords
-	
-	cat_x[0]=52;
-	cat_y[0]=100;
-	cat_x[1]=180;
-	cat_y[1]=100;
+	// initialize game variables
+	// rl_init();
+
+	car_1.x = 50;
+	car_1.y = 50;
+	car_1.z = 0;
+	// car_1.vel_x = 0;
+	// car_1.vel_y = 0;
+	// car_1.vel_z = 0;
+
+	car_2.x = 150;
+	car_2.y = 50;
+	car_2.z = 0;
+	// car_2.vel_x = 0;
+	// car_2.vel_y = 0;
+	// car_2.vel_z = 0;
+
+	ball.x = 100;
+	ball.y = 100;
+	ball.z = 0;
+	// ball.vel_x = 0;
+	// ball.vel_y = 0;
+	// ball.vel_z = 0;
 
 	//init other vars
-	
-	touch=0;//collision flag
-	frame=0;//frame counter
-
-	//now the main loop
 
 	while(1)
 	{
 		ppu_wait_frame();//wait for next TV frame
 
-		//flashing color for touch
-		
-		i=frame&1?0x30:0x2a;
+		// Set pallette colors
+		pal_col(17,0x21); //set first sprite color
+		pal_col(21,0x26); //set second sprite color
 
-		pal_col(17,touch?i:0x21); //set first sprite color
-		pal_col(21,touch?i:0x26); //set second sprite color
-		pal_col(25,touch?i:0x2B); //set third sprite color
-
-		//process players
-		
+		// Draw metasprites
 		spr=0;
 
-		spr=oam_meta_spr(50,50,spr,metaCat3);
+		spr=oam_meta_spr(ball.x, ball.y, spr, car_1_sprite_l);
+		spr=oam_meta_spr(car_1.x,  car_1.y, spr,car_1_sprite_l);
+		spr=oam_meta_spr(car_2.x, car_2.y, spr, car_1_sprite_l);
 
-		for(i=0;i<2;++i)
-		{
-			//display metasprite
-			
-			spr=oam_meta_spr(cat_x[i],cat_y[i],spr,!i?metaCat1:metaCat2);
+		// Player 1 input
+		pad=pad_poll(0);
 
-			//poll pad and change coordinates
-			
-			pad=pad_poll(i);
+		if(pad&PAD_LEFT  && car_1.x >   0) car_1.x -= 2;
+		if(pad&PAD_RIGHT && car_1.x < 232) car_1.x += 2;
+		if(pad&PAD_UP    && car_1.y >   0) car_1.y -= 2;
+		if(pad&PAD_DOWN  && car_1.y < 212) car_1.y += 2;
 
-			if(pad&PAD_LEFT &&cat_x[i]>  0) cat_x[i]-=2;
-			if(pad&PAD_RIGHT&&cat_x[i]<232) cat_x[i]+=2;
-			if(pad&PAD_UP   &&cat_y[i]>  0) cat_y[i]-=2;
-			if(pad&PAD_DOWN &&cat_y[i]<212) cat_y[i]+=2;
-		}
+		// Player 2 input
+		pad=pad_poll(1);
 
-		//check for collision for a smaller bounding box
-		//metasprite is 24x24, collision box is 20x20
-		
-		if(!(cat_x[0]+22< cat_x[1]+2 ||
-		     cat_x[0]+ 2>=cat_x[1]+22||
-	         cat_y[0]+22< cat_y[1]+2 ||
-		     cat_y[0]+ 2>=cat_y[1]+22)) touch=1; else touch=0;
-
-		frame++;
+		if(pad&PAD_LEFT  && car_2.x >   0) car_2.x -= 2;
+		if(pad&PAD_RIGHT && car_2.x < 232) car_2.x += 2;
+		if(pad&PAD_UP    && car_2.y >   0) car_2.y -= 2;
+		if(pad&PAD_DOWN  && car_2.y < 212) car_2.y += 2;
 	}
+}
+
+void rl_init(void) {
+	car_1.x = 50;
+	car_1.y = 50;
+	car_1.z = 0;
+	car_1.vel_x = 0;
+	car_1.vel_y = 0;
+	car_1.vel_z = 0;
+
+	car_2.x = 150;
+	car_2.y = 50;
+	car_2.z = 0;
+	car_2.vel_x = 0;
+	car_2.vel_y = 0;
+	car_2.vel_z = 0;
+
+	ball.x = 100;
+	ball.y = 100;
+	ball.z = 0;
+	ball.vel_x = 0;
+	ball.vel_y = 0;
+	ball.vel_z = 0;
 }
