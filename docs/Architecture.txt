@@ -1,0 +1,56 @@
+Rocket League Demake Architecture
+
+Game Components
+Graphics
+Controls
+Audio
+Physics
+
+Car
+	Position
+	Direction
+	Height
+	Boost
+	Boosting
+	Velocity
+	Flip Sprite
+
+Ball
+	Position
+	Velocity
+	Roll Direction
+	Roll State
+	Height
+
+Field
+	Collider
+
+Boost Pad
+	Timer
+
+Game
+	Time
+	Game State - Paused, Playing, Countdown, Scored
+	Score
+
+Physics Engine
+	Ball-Car Collision
+	The car knocks back the ball based off of speed
+
+	Ball-Ground Collision
+	if the ball is going fast enough, bounce the ball a dampened amount
+	else the ball just rolls forward
+
+	Ball-Wall Collision
+	Ball velocity.z = -Ball Velocity.z;
+	Approximate a flipped angle
+
+	Car-Wall Collision
+	if the car is going fast enough, bounce back
+	else the car sticks next to the wall and preserves forward velocity
+
+	Car-Car Collision
+	Whoever hits from the front knocks back the opponent
+
+	Jump
+	
