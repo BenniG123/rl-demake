@@ -32,6 +32,9 @@ static unsigned char spr;
 // Decceleration variable
 static unsigned char decel;
 
+// Car grounded variable
+static unsigned char grounded;
+
 // Cars, Ball, and Game
 static car_t car_1;
 static car_t car_2;
@@ -74,11 +77,11 @@ void rl_draw_screen(void) {
 
 	// Translate worldspace to screen space
 	ball_screen_x = ball.x - game.camera_x;
-	ball_screen_y = ball.y + ball.z;
+	ball_screen_y = ball.y - ball.z;
 	car_1_screen_x = car_1.x - game.camera_x;
-	car_1_screen_y = car_1.y + car_1.z;
+	car_1_screen_y = car_1.y - car_1.z;
 	car_2_screen_x = car_2.x - game.camera_x;
-	car_2_screen_y = car_2.y + car_2.z;
+	car_2_screen_y = car_2.y - car_2.z;
 
 	// Draw metasprites
 	spr=0;
@@ -162,59 +165,105 @@ void rl_init(void) {
 }
 
 void rl_physics_step(void) {
-	// Player 1 input
-	pad = pad_poll(0);
+	// Only decelerate cars every DECCEL FREQ frames
 	decel = game.second_counter % DECCEL_FREQ == 0;
-
-	if (pad&PAD_LEFT  && car_1.vel_x > MAX_NEG_VELOCITY) {
-		car_1.vel_x -= ACCEL;
-	}
-	else if (pad&PAD_RIGHT && car_1.vel_x < MAX_POS_VELOCITY) {
-		car_1.vel_x += ACCEL;
-	}
-	else if (pad&PAD_A && car_1.z == 0) {
-		// Jump
-	}
-	// DECCEL once ever DECCEL_FREQ frames
-	else if (car_1.z == 0 && car_1.vel_x > 0 && decel) {
-		car_1.vel_x -= DECCEL;
-	}
-	// DECCEL once ever DECCL_FREQ frames
-	else if (car_1.z == 0 && car_1.vel_x < 0 && decel) {
-		car_1.vel_x += DECCEL;
-	}
-
-	if (pad&PAD_UP  && car_1.vel_y > MAX_NEG_VELOCITY) {
-		car_1.vel_y -= ACCEL;
-	}
-	else if (pad&PAD_DOWN && car_1.vel_y < MAX_POS_VELOCITY) {
-		car_1.vel_y += ACCEL;
-	}
-	else if (pad&PAD_A && car_1.z == 0) {
-		// Jump
-	}
-	// DECCEL once ever DECCEL_FREQ frames
-	else if (car_1.z == 0 && car_1.vel_y > 0 && decel) {
-		car_1.vel_y -= DECCEL;
-	}
-	// DECCEL once ever DECCL_FREQ frames
-	else if (car_1.z == 0 && car_1.vel_y < 0 && decel) {
-		car_1.vel_y += DECCEL;
-	}
-
+	
+	rl_car_1_input();
 
 	car_1.x += car_1.vel_x;
 	car_1.y += car_1.vel_y;
+	car_1.z += car_1.vel_z;
 
-	// Player 2 input
-	pad = pad_poll(1);
+	// Handle Collisions
 
-	if(pad&PAD_LEFT  && car_2.vel_x > MAX_NEG_VELOCITY) car_2.vel_x -= ACCEL;
-	if(pad&PAD_RIGHT && car_2.vel_x < MAX_POS_VELOCITY) car_2.vel_x += ACCEL;
-	if(pad&PAD_UP    && car_2.vel_y > MAX_NEG_VELOCITY) car_2.vel_y -= ACCEL;
-	if(pad&PAD_DOWN  && car_2.vel_y < MAX_POS_VELOCITY) car_2.vel_y += ACCEL;
+	rl_car_2_input();
 
 	car_2.x += car_2.vel_x;
 	car_2.y += car_2.vel_y;
+	car_2.z += car_2.vel_z;
 
+}
+
+void rl_car_1_input(void) {
+	// Player 1 input
+	pad = pad_poll(0);
+
+	grounded = car_1.z == 0;
+
+	if (grounded) {
+		if (pad&PAD_A) {
+			// Jump
+			car_1.vel_z = JUMP_ACCEL;
+		}
+		else if (pad&PAD_LEFT && car_1.vel_x > MAX_NEG_VELOCITY) {
+			car_1.vel_x -= ACCEL;
+		}
+		else if (pad&PAD_RIGHT && car_1.vel_x < MAX_POS_VELOCITY) {
+			car_1.vel_x += ACCEL;
+		}
+		else if (car_1.vel_x > 0 && decel) {
+			car_1.vel_x -= DECCEL;
+		}
+		else if (car_1.vel_x < 0 && decel) {
+			car_1.vel_x += DECCEL;
+		}
+
+		if (pad&PAD_UP  && car_1.vel_y > MAX_NEG_VELOCITY) {
+			car_1.vel_y -= ACCEL;
+		}
+		else if (pad&PAD_DOWN && car_1.vel_y < MAX_POS_VELOCITY) {
+			car_1.vel_y += ACCEL;
+		}
+		else if (car_1.vel_y > 0 && decel) {
+			car_1.vel_y -= DECCEL;
+		}
+		else if (car_1.vel_y < 0 && decel) {
+			car_1.vel_y += DECCEL;
+		}
+	}
+	else {
+		// Check for flips
+	}
+}
+
+void rl_car_2_input(void) {
+	// Player 1 input
+	pad = pad_poll(1);
+
+	grounded = car_2.z == 0;
+
+	if (grounded) {
+		if (pad&PAD_A) {
+			// Jump
+			car_2.vel_z = JUMP_ACCEL;
+		}
+		else if (pad&PAD_LEFT && car_2.vel_x > MAX_NEG_VELOCITY) {
+			car_2.vel_x -= ACCEL;
+		}
+		else if (pad&PAD_RIGHT && car_2.vel_x < MAX_POS_VELOCITY) {
+			car_2.vel_x += ACCEL;
+		}
+		else if (car_2.vel_x > 0 && decel) {
+			car_2.vel_x -= DECCEL;
+		}
+		else if (car_2.vel_x < 0 && decel) {
+			car_2.vel_x += DECCEL;
+		}
+
+		if (pad&PAD_UP && car_2.vel_y > MAX_NEG_VELOCITY) {
+			car_2.vel_y -= ACCEL;
+		}
+		else if (pad&PAD_DOWN && car_2.vel_y < MAX_POS_VELOCITY) {
+			car_2.vel_y += ACCEL;
+		}
+		else if (car_2.vel_y > 0 && decel) {
+			car_2.vel_y -= DECCEL;
+		}
+		else if (car_2.vel_y < 0 && decel) {
+			car_2.vel_y += DECCEL;
+		}
+	}
+	else {
+
+	}
 }
