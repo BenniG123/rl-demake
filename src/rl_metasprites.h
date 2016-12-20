@@ -1,9 +1,14 @@
 // Definitions for all metasprites, data structure explained in neslib.h
-#define RL_CAR_BLUE_L 0
-#define RL_CAR_BLUE_D 1
-#define RL_CAR_BLUE_U 2
-#define RL_CAR_BLUE_R 3
-#define RL_BALL 4
+#define CAR_BLUE_L 0
+#define CAR_BLUE_D 1
+#define CAR_BLUE_U 2
+#define CAR_BLUE_R 3
+#define BALL 4
+#define LEFT_ARROW 4
+#define RIGHT_ARROW 4
+
+// Not a meta sprite but I'm defining its ID here anyways
+#define SHADOW 32
 
 const unsigned char metasprite_data[]={
 

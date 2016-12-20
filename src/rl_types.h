@@ -17,6 +17,7 @@ typedef struct car_t {
 	signed char vel_x;
 	signed char vel_y;
 	signed char vel_z;
+	unsigned char sprite_index;
 	DIRECTION direction;
 	unsigned char height;
 	unsigned char boost;
@@ -33,6 +34,7 @@ typedef struct ball_t {
 	signed char vel_x;
 	signed char vel_y;
 	signed char vel_z;
+	unsigned char sprite_index;
 	DIRECTION direction;
 	unsigned char height;
 } ball_t;

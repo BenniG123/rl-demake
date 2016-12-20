@@ -1,8 +1,11 @@
 #define FIELD_WIDTH 700
 #define FIELD_HEIGHT 216
 #define SCREEN_WIDTH 256
-#define SPRITE_DRAW_WIDTH 220
+#define SPRITE_DRAW_WIDTH 240
 #define SCREEN_HEIGHT 240
+#define CAR_WIDTH 32
+#define CAR_HEIGHT 24
+#define BALL_HEIGHT 5 // The Z height of the ball
 #define BALL_CAMERA_PAN_MIN_THRESHOLD 60
 #define BALL_CAMERA_PAN_MAX_THRESHOLD 196
 #define CAMERA_MAX_POSITION FIELD_WIDTH-SCREEN_WIDTH+24
@@ -13,11 +16,11 @@
 #define MAX_POS_VELOCITY 3
 #define MAX_NEG_VELOCITY -3
 #define CAR_DECCEL_FREQ 3
-#define BALL_DECCEL_FREQ 15
+#define BALL_DECCEL_FREQ 12
 #define FPS 60
 #define UNSIGNED_INT_OVERFLOW 750 
 
-void rl_init(void);
+void init(void);
 
 void gravity(void);
 
@@ -25,10 +28,10 @@ void friction(void);
 
 void collisions(void);
 
-void rl_physics_step(void);
+void physics_step(void);
 
-void rl_draw_screen(void);
+void draw_screen(void);
 
-void rl_car_1_input(void);
+void car_1_input(void);
 
-void rl_car_2_input(void);
+void car_2_input(void);
