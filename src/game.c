@@ -24,6 +24,10 @@ static unsigned char car_1_screen_y;
 static unsigned int car_2_screen_x;
 static unsigned char car_2_screen_y;
 
+// Ball collision helpers
+static unsigned int ball_bound_x;
+static unsigned int ball_bound_y;
+
 // Controller input
 static unsigned char pad;
 
@@ -123,7 +127,7 @@ void draw_screen(void) {
 
 		if (car_1.z > 0) {
 			// Draw shadow under car
-			spr = oam_spr(car_1_screen_x, car_1_screen_y + car_1.z, SHADOW, NULL, spr);
+			spr = oam_spr(car_1_screen_x, car_1_screen_y + car_1.z, SHADOW, 0, spr);
 		}
 	}
 
@@ -319,8 +323,18 @@ void gravity() {
 
 void collisions(void) {
 		// Handle Collisions
-	if (car_1.x > ball.x - CAR_WIDTH && car_1.x < ball.x + CAR_WIDTH) {
-		if (car_1.y > ball.y - CAR_HEIGHT && car_1.y < ball.y + CAR_HEIGHT) {
+	ball_bound_x = ball.x - CAR_WIDTH;
+	if (ball_bound_x > UNSIGNED_INT_OVERFLOW) {
+		ball_bound_x = 0;
+	}
+
+	ball_bound_y = ball.y - CAR_HEIGHT;
+	if (ball_bound_y > UNSIGNED_INT_OVERFLOW) {
+		ball_bound_y = 0;
+	}
+
+	if (car_1.x > ball_bound_x && car_1.x < ball.x + CAR_WIDTH) {
+		if (car_1.y > ball_bound_y && car_1.y < ball.y + CAR_HEIGHT) {
 			if (car_1.z > ball.z - BALL_HEIGHT && car_1.z < ball.z + BALL_HEIGHT) {
 				// Handle ball collision
 				ball.vel_x = ((0 - (ball.vel_x << 2)) + (car_1.vel_x << 3)) >> 2;

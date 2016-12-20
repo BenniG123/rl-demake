@@ -8,7 +8,7 @@
 #define RIGHT_ARROW 4
 
 // Not a meta sprite but I'm defining its ID here anyways
-#define SHADOW 32
+#define SHADOW 0x1F
 
 const unsigned char metasprite_data[]={
 
