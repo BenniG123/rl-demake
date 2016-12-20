@@ -11,7 +11,7 @@
 // #include "main_menu_name.h"
 
 // Stadium Name Tables
-// #include "dfh_stadium_name.h"
+#include "dfh_stadium.h"
 // #include "beckwith_park_nam.h"
 
 const unsigned char palette[16]={ 0x0f,0x00,0x10,0x30,0x0f,0x01,0x21,0x31,0x0f,0x06,0x16,0x26,0x0f,0x09,0x19,0x29 };
@@ -51,9 +51,7 @@ static game_t game;
 
 void main(void)
 {
-	ppu_on_all();//enable rendering
-
-	// initialize game variables
+	// initialize game state and hardware
 	init();
 
 	while(1)
@@ -77,7 +75,7 @@ void main(void)
 void draw_screen(void) {
 	// Set pallette colors
 	oam_clear();
-	pal_spr(palette);
+	// pal_spr(palette);
 
 	// Translate worldspace to screen space
 	ball_screen_x = ball.x - game.camera_x;
@@ -90,15 +88,20 @@ void draw_screen(void) {
 	// Move Camera
 	if (ball_screen_x < BALL_CAMERA_PAN_MIN_THRESHOLD && game.camera_x > 0) {
 		game.camera_x = ball.x - BALL_CAMERA_PAN_MIN_THRESHOLD;
+		scroll(game.camera_x, 0);
 	}
 	else if(ball_screen_x > BALL_CAMERA_PAN_MAX_THRESHOLD && game.camera_x < CAMERA_MAX_POSITION) {
 		// Move Camera
 		game.camera_x = ball.x - BALL_CAMERA_PAN_MAX_THRESHOLD;
+		scroll(game.camera_x, 0);
 	}
 
 	if (game.camera_x > UNSIGNED_INT_OVERFLOW) {
 		game.camera_x = 0;
+		scroll(game.camera_x, 0);
 	}
+
+
 
 	// Draw metasprites
 	spr=0;
@@ -179,6 +182,14 @@ void init(void) {
 	// Init player scores
 	game.score_one = 0;
 	game.score_two = 0;
+
+	pal_bg(palette);
+	pal_spr(palette);
+
+	vram_adr(NAMETABLE_A);//unpack nametable into VRAM
+	vram_unrle(nametable);
+
+	ppu_on_all();//enable rendering
 }
 
 void physics_step(void) {
