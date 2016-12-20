@@ -14,6 +14,7 @@
 // #include "dfh_stadium_name.h"
 // #include "beckwith_park_nam.h"
 
+const unsigned char palette[16]={ 0x0f,0x00,0x10,0x30,0x0f,0x01,0x21,0x31,0x0f,0x06,0x16,0x26,0x0f,0x09,0x19,0x29 };
 
 // For drawing the sprites on the correct spot on the screen
 static unsigned int ball_screen_x;
@@ -71,9 +72,7 @@ void main(void)
 
 void rl_draw_screen(void) {
 	// Set pallette colors
-	pal_col(17,0x21); //set first sprite color
-	pal_col(21,0x26); //set second sprite color
-	pal_col(25,0x2b); //set third sprite color
+	pal_spr(palette);
 
 	// Translate worldspace to screen space
 	ball_screen_x = ball.x - game.camera_x;
@@ -82,9 +81,6 @@ void rl_draw_screen(void) {
 	car_1_screen_y = car_1.y - car_1.z;
 	car_2_screen_x = car_2.x - game.camera_x;
 	car_2_screen_y = car_2.y - car_2.z;
-
-	// Draw metasprites
-	spr=0;
 
 	// Move Camera
 	if (ball_screen_x < BALL_CAMERA_PAN_MIN_THRESHOLD && game.camera_x > 0) {
@@ -99,33 +95,36 @@ void rl_draw_screen(void) {
 		game.camera_x = 0;
 	}
 
-	// Draw ball
-	spr = oam_meta_spr(ball_screen_x, ball_screen_y, spr, ball_sprite_l);
+	// Draw metasprites
+	spr=0;
+
+	// Draw ball - this is always on screen
+	spr = oam_meta_spr(ball_screen_x, ball_screen_y, spr, metasprite_list[RL_BALL]);
 
 	if (car_1.x < game.camera_x) {
 		// Draw left arrow
-		spr = oam_meta_spr(0, car_1_screen_y, spr, ball_sprite_l);
+		spr = oam_meta_spr(0, car_1_screen_y, spr, metasprite_list[RL_BALL]);
 	}
 	else if (car_1_screen_x > SPRITE_DRAW_WIDTH) {
 		// Draw right arrow
-		spr = oam_meta_spr(SPRITE_DRAW_WIDTH, car_1_screen_y, spr, ball_sprite_l);
+		spr = oam_meta_spr(SPRITE_DRAW_WIDTH, car_1_screen_y, spr, metasprite_list[RL_BALL]);
 	}
 	else {
 		// Draw car
-		spr = oam_meta_spr(car_1_screen_x, car_1_screen_y, spr,car_1_sprite_l);
+		spr = oam_meta_spr(car_1_screen_x, car_1_screen_y, spr,metasprite_list[RL_CAR_BLUE_L]);
 	}
 
 	if (car_2.x < game.camera_x) {
 		// Draw left arrow
-		spr = oam_meta_spr(0, car_2_screen_y, spr, ball_sprite_l);
+		spr = oam_meta_spr(0, car_2_screen_y, spr, metasprite_list[RL_BALL]);
 	}
 	else if (car_2_screen_x > SPRITE_DRAW_WIDTH) {
 		// Draw right arrow
-		spr = oam_meta_spr(SPRITE_DRAW_WIDTH, car_2_screen_y, spr, ball_sprite_l);
+		spr = oam_meta_spr(SPRITE_DRAW_WIDTH, car_2_screen_y, spr, metasprite_list[RL_BALL]);
 	}
 	else {
 		// Draw car
-		spr = oam_meta_spr(car_2_screen_x, car_2_screen_y, spr, car_2_sprite_l);
+		spr = oam_meta_spr(car_2_screen_x, car_2_screen_y, spr, metasprite_list[RL_CAR_BLUE_R]);
 	}
 }
 
