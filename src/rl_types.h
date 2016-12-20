@@ -23,6 +23,7 @@ typedef struct car_t {
 	unsigned char is_boosting;
 	unsigned char flip_state;
 	unsigned char jump_counter;
+	unsigned char is_coasting;
 } car_t;
 
 typedef struct ball_t {

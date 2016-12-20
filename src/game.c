@@ -31,7 +31,8 @@ static unsigned char pad;
 static unsigned char spr;
 
 // Decceleration variable
-static unsigned char decel;
+static unsigned char car_decel;
+static unsigned char ball_decel;
 
 // Car grounded variable
 static unsigned char grounded;
@@ -64,6 +65,9 @@ void main(void)
 			game.second_counter = 0;
 			--game.time;
 		}
+
+		rl_car_1_input();
+		rl_car_2_input();
 
 		rl_physics_step();
 		rl_draw_screen();
@@ -173,21 +177,14 @@ void rl_init(void) {
 
 void rl_physics_step(void) {
 	// Only decelerate cars every DECCEL FREQ frames
-	decel = game.second_counter % DECCEL_FREQ == 0;
-	
-	rl_car_1_input();
+	car_decel = game.second_counter % CAR_DECCEL_FREQ == 0;
+	ball_decel = game.second_counter % BALL_DECCEL_FREQ == 0;
 
-	if (decel && car_1.z > 0) {
-		--car_1.vel_z;
-	}
+	gravity();
 
-	if (car_1.z == 0 && car_1.vel_z < 0) {
-		car_1.vel_z = 0;
-		car_1.jump_counter = 0;
-	}
+	friction();
 
-	rl_car_2_input();
-
+	// Move Cars
 	car_1.x += car_1.vel_x;
 	car_1.y += car_1.vel_y;
 	car_1.z += car_1.vel_z;
@@ -196,7 +193,107 @@ void rl_physics_step(void) {
 	car_2.y += car_2.vel_y;
 	car_2.z += car_2.vel_z;
 
-	// Handle Collisions
+	collisions();
+
+	ball.x += ball.vel_x;
+	ball.y += ball.vel_y;
+	ball.z += ball.vel_z;
+
+}
+
+void rl_car_1_input(void) {
+	// Player 1 input
+	pad = pad_poll(0);
+
+	grounded = car_1.z == 0;
+
+	if (grounded) {
+		if (pad&PAD_A && car_1.vel_z == 0) {
+			// Jump
+			++car_1.jump_counter;
+			car_1.vel_z = JUMP_ACCEL;
+		}
+		else if (pad&PAD_LEFT && car_1.vel_x > MAX_NEG_VELOCITY) {
+			car_1.vel_x -= ACCEL;
+		}
+		else if (pad&PAD_RIGHT && car_1.vel_x < MAX_POS_VELOCITY) {
+			car_1.vel_x += ACCEL;
+		}
+
+		if (pad&PAD_UP  && car_1.vel_y > MAX_NEG_VELOCITY) {
+			car_1.vel_y -= ACCEL;
+		}
+		else if (pad&PAD_DOWN && car_1.vel_y < MAX_POS_VELOCITY) {
+			car_1.vel_y += ACCEL;
+		}
+	}
+	else {
+		// Check for flips
+	}
+}
+
+void rl_car_2_input(void) {
+	// Player 1 input
+	pad = pad_poll(1);
+
+	grounded = car_2.z == 0;
+
+	if (grounded) {
+		if (pad&PAD_A && car_2.vel_z == 0) {
+			// Jump
+			car_2.vel_z = JUMP_ACCEL;
+		}
+		else if (pad&PAD_LEFT && car_2.vel_x > MAX_NEG_VELOCITY) {
+			car_2.vel_x -= ACCEL;
+		}
+		else if (pad&PAD_RIGHT && car_2.vel_x < MAX_POS_VELOCITY) {
+			car_2.vel_x += ACCEL;
+		}
+
+		if (pad&PAD_UP && car_2.vel_y > MAX_NEG_VELOCITY) {
+			car_2.vel_y -= ACCEL;
+		}
+		else if (pad&PAD_DOWN && car_2.vel_y < MAX_POS_VELOCITY) {
+			car_2.vel_y += ACCEL;
+		}
+	}
+	else {
+
+	}
+}
+
+// Gravity - Z axis decceleration
+void gravity() {
+	if (car_decel) {
+		if (car_1.z > 0) {
+			--car_1.vel_z;
+		}
+		if (car_2.z > 0) {
+			--car_2.vel_z;
+		}
+		if (ball.z > 0) {
+			--ball.vel_z;
+		}
+	}
+
+	if (car_1.z == 0 && car_1.vel_z < 0) {
+		car_1.vel_z = 0;
+		car_1.jump_counter = 0;
+	}
+
+	if (car_2.z == 0 && car_2.vel_z < 0) {
+		car_2.vel_z = 0;
+		car_2.jump_counter = 0;
+	}
+
+	if (ball.z == 0 && ball.vel_z < 0) {
+		ball.vel_z = 0;
+	}
+
+}
+
+void collisions(void) {
+		// Handle Collisions
 	if (car_1.x > ball.x - 24 && car_1.x < ball.x + 24) {
 		if (car_1.y > ball.y - 24 && car_1.y < ball.y + 24) {
 			if (car_1.z > ball.z - 5 && car_1.z < ball.z + 5) {
@@ -267,95 +364,53 @@ void rl_physics_step(void) {
 	else if (car_2.y > FIELD_HEIGHT && car_2.vel_y >= 0) {
 		car_2.y = 0;
 	}
-
-
-	ball.x += ball.vel_x;
-	ball.y += ball.vel_y;
-	ball.z += ball.vel_z;
-
 }
 
-void rl_car_1_input(void) {
-	// Player 1 input
-	pad = pad_poll(0);
-
-	grounded = car_1.z == 0;
-
-	if (grounded) {
-		if (pad&PAD_A && car_1.vel_z == 0) {
-			// Jump
-			++car_1.jump_counter;
-			car_1.vel_z = JUMP_ACCEL;
-		}
-		else if (pad&PAD_LEFT && car_1.vel_x > MAX_NEG_VELOCITY) {
-			car_1.vel_x -= ACCEL;
-		}
-		else if (pad&PAD_RIGHT && car_1.vel_x < MAX_POS_VELOCITY) {
-			car_1.vel_x += ACCEL;
-		}
-		else if (car_1.vel_x > 0 && decel) {
+void friction(void) {
+	if (car_decel) {
+		if (car_1.vel_x > 0) {
 			car_1.vel_x -= DECCEL;
 		}
-		else if (car_1.vel_x < 0 && decel) {
+		else if (car_1.vel_x < 0) {
 			car_1.vel_x += DECCEL;
 		}
 
-		if (pad&PAD_UP  && car_1.vel_y > MAX_NEG_VELOCITY) {
-			car_1.vel_y -= ACCEL;
-		}
-		else if (pad&PAD_DOWN && car_1.vel_y < MAX_POS_VELOCITY) {
-			car_1.vel_y += ACCEL;
-		}
-		else if (car_1.vel_y > 0 && decel) {
+		if (car_1.vel_y > 0 ) {
 			car_1.vel_y -= DECCEL;
 		}
-		else if (car_1.vel_y < 0 && decel) {
+		else if (car_1.vel_y < 0) {
 			car_1.vel_y += DECCEL;
 		}
-	}
-	else {
-		// Check for flips
-	}
-}
 
-void rl_car_2_input(void) {
-	// Player 1 input
-	pad = pad_poll(1);
-
-	grounded = car_2.z == 0;
-
-	if (grounded) {
-		if (pad&PAD_A && car_2.vel_z == 0) {
-			// Jump
-			car_2.vel_z = JUMP_ACCEL;
-		}
-		else if (pad&PAD_LEFT && car_2.vel_x > MAX_NEG_VELOCITY) {
-			car_2.vel_x -= ACCEL;
-		}
-		else if (pad&PAD_RIGHT && car_2.vel_x < MAX_POS_VELOCITY) {
-			car_2.vel_x += ACCEL;
-		}
-		else if (car_2.vel_x > 0 && decel) {
+		if (car_2.vel_x > 0) {
 			car_2.vel_x -= DECCEL;
 		}
-		else if (car_2.vel_x < 0 && decel) {
+		else if (car_2.vel_x < 0) {
 			car_2.vel_x += DECCEL;
 		}
 
-		if (pad&PAD_UP && car_2.vel_y > MAX_NEG_VELOCITY) {
-			car_2.vel_y -= ACCEL;
-		}
-		else if (pad&PAD_DOWN && car_2.vel_y < MAX_POS_VELOCITY) {
-			car_2.vel_y += ACCEL;
-		}
-		else if (car_2.vel_y > 0 && decel) {
+		if (car_2.vel_y > 0 ) {
 			car_2.vel_y -= DECCEL;
 		}
-		else if (car_2.vel_y < 0 && decel) {
+		else if (car_2.vel_y < 0) {
 			car_2.vel_y += DECCEL;
 		}
 	}
-	else {
 
+	if (ball_decel) {
+		if (ball.vel_x > 0) {
+			ball.vel_x -= DECCEL;
+		}
+		else if (ball.vel_x < 0) {
+			ball.vel_x += DECCEL;
+		}
+
+		if (ball.vel_y > 0 ) {
+			ball.vel_y -= DECCEL;
+		}
+		else if (ball.vel_y < 0) {
+			ball.vel_y += DECCEL;
+		}
 	}
+
 }
