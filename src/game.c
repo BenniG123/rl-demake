@@ -159,7 +159,7 @@ void init(void) {
 	car_1.vel_y = 0;
 	car_1.vel_z = 0;
 	car_1.is_boosting = 0;
-	car_1.boost = 33;
+	car_1.boost = 3300;
 	car_1.direction = RRRR;
 	car_1.sprite_index = CAR_BLUE_R;
 
@@ -262,31 +262,27 @@ void car_1_input(void) {
 			car_1.direction = DDDD;
 			car_1.sprite_index = CAR_BLUE_D;
 		}
-		if(pad&PAD_B)
+		if(pad&PAD_B&&car_1.boost>0)
 		{
-		if (pad&PAD_LEFT && car_1.vel_x > MAX_NEG_VELOCITY_BOOST) {
-			car_1.vel_x -= BOOST_ACCEL;
-			car_1.direction = LLLL;
-			car_1.sprite_index = CAR_BLUE_L;
-		}
-		else if (pad&PAD_RIGHT && car_1.vel_x < MAX_POS_VELOCITY_BOOST) {
-			car_1.vel_x += BOOST_ACCEL;
-			car_1.direction = RRRR;
-			car_1.sprite_index = CAR_BLUE_R;
-		}
-
-		if (pad&PAD_UP  && car_1.vel_y > MAX_NEG_VELOCITY_BOOST) {
-			car_1.vel_y -= BOOST_ACCEL;
-			car_1.direction = UUUU;
-			car_1.sprite_index = CAR_BLUE_U;
-		}
-		else if (pad&PAD_DOWN && car_1.vel_y < MAX_POS_VELOCITY_BOOST) {
-			car_1.vel_y += BOOST_ACCEL;
-			car_1.direction = DDDD;
-			car_1.sprite_index = CAR_BLUE_D;
+		--car_1.boost;
+		switch(car_1.direction)
+		{
+			case DDDD:
+				car_1.vel_y += BOOST_ACCEL;
+				break;
+			case UUUU:
+				car_1.vel_y -= BOOST_ACCEL;
+				break;
+			case RRRR:
+				car_1.vel_x += BOOST_ACCEL;
+				break;
+			case LLLL:
+				car_1.vel_x -= BOOST_ACCEL;
+				break;
+			default:
+				car_1.vel_y += BOOST_ACCEL;
 		}
 		}
-
 	}
 	else {
 		// Check for flips

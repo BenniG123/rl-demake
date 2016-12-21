@@ -12,7 +12,7 @@
 #define ACCEL 1
 #define JUMP_ACCEL 5
 #define DECCEL 1
-#define BOOST_ACCEL 4
+#define BOOST_ACCEL 1
 #define MAX_POS_VELOCITY 3
 #define MAX_POS_VELOCITY_BOOST 7
 #define MAX_NEG_VELOCITY -3
