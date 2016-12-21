@@ -153,7 +153,7 @@ void draw_screen(void) {
 void init(void) {
 	// Initialize physics position and velocity
 	car_1.x = 100;
-	car_1.y = 50;
+	car_1.y = 100;
 	car_1.z = 0;
 	car_1.vel_x = 0;
 	car_1.vel_y = 0;
@@ -163,8 +163,8 @@ void init(void) {
 	car_1.direction = RRRR;
 	car_1.sprite_index = CAR_BLUE_R;
 
-	car_2.x = 200;
-	car_2.y = 50;
+	car_2.x = 300;
+	car_2.y = 100;
 	car_2.z = 0;
 	car_2.vel_x = 0;
 	car_2.vel_y = 0;
@@ -174,7 +174,7 @@ void init(void) {
 	car_2.direction = LLLL;
 	car_2.sprite_index = CAR_RED_L;
 
-	ball.x = 150;
+	ball.x = 200;
 	ball.y = 100;
 	ball.z = 0;
 	ball.vel_x = 0;
@@ -342,18 +342,18 @@ void gravity() {
 		}
 	}
 
-	if (car_1.z == 0 && car_1.vel_z < 0) {
+	if (car_1.z <= 0 && car_1.vel_z < 0) {
 		car_1.vel_z = 0;
 		car_1.jump_counter = 0;
 	}
 
-	if (car_2.z == 0 && car_2.vel_z < 0) {
+	if (car_2.z <= 0 && car_2.vel_z < 0) {
 		car_2.vel_z = 0;
 		car_2.jump_counter = 0;
 	}
 
-	if (ball.z == 0 && ball.vel_z < 0) {
-		ball.vel_z = 0;
+	if (ball.z <= 0 && ball.vel_z < 0) {
+		ball.vel_z = -ball.vel_z - 1;
 	}
 
 }
@@ -376,7 +376,7 @@ void collisions(void) {
 				// Handle ball collision
 				ball.vel_x = ((0 - (ball.vel_x << 2)) + (car_1.vel_x << 3)) >> 2;
 				ball.vel_y = ((0 - (ball.vel_y << 2)) + (car_1.vel_y << 3)) >> 2;
-				// ball.vel_z = ((ball.vel_x + ball.vel_y) + (ball.z - car_1.z)) >> 3;
+				ball.vel_z = rand8() >> 6;
 			}
 		}
 	}
@@ -385,8 +385,9 @@ void collisions(void) {
 		if (car_2.y > ball.y - 24 && car_2.y < ball.y + 24) {
 			if (car_2.z > ball.z - 5 && car_2.z < ball.z + 5) {
 				// Handle ball collision
-				// ball.vel_x = car_2.vel_x;
-				// ball.vel_y = car_2.vel_y;
+				ball.vel_x = ((0 - (ball.vel_x << 2)) + (car_1.vel_x << 3)) >> 2;
+				ball.vel_y = ((0 - (ball.vel_y << 2)) + (car_1.vel_y << 3)) >> 2;
+				ball.vel_z = rand8() >> 6;
 			}
 		}
 	}
