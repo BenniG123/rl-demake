@@ -6,6 +6,10 @@
 #define BALL 4
 #define LEFT_ARROW 4
 #define RIGHT_ARROW 4
+#define CAR_RED_L 5
+#define CAR_RED_D 6
+#define CAR_RED_U 7
+#define CAR_RED_R 8
 
 // Not a meta sprite but I'm defining its ID here anyways
 #define SHADOW 0x1F
@@ -71,6 +75,56 @@ const unsigned char metasprite_data[]={
 	-12,  4,0x8c,0,
 	- 4,  4,0x8d,0,
 	  4,  4,0x8e,0,
+	128,
+
+	-16,-12,0x04,2,
+	- 8,-12,0x05,2,
+	  0,-12,0x06,2,
+	  8,-12,0x07,2,
+	-16,- 4,0x14,2,
+	- 8,- 4,0x15,2,
+	  0,- 4,0x16,2,
+	  8,- 4,0x17,2,
+	-16,  4,0x24,2,
+	- 8,  4,0x25,2,
+	  0,  4,0x26,2,
+	  8,  4,0x27,2,
+	128,
+
+	-12,-12,0x0c,2,
+	- 4,-12,0x0d,2,
+	  4,-12,0x0e,2,
+	-12,- 4,0x1c,2,
+	- 4,- 4,0x1d,2,
+	  4,- 4,0x1e,2,
+	-12,  4,0x2c,2,
+	- 4,  4,0x2d,2,
+	  4,  4,0x2e,2,
+	128,
+
+	-12,-12,0x3c,2,
+	- 4,-12,0x3d,2,
+	  4,-12,0x3e,2,
+	-12,- 4,0x4c,2,
+	- 4,- 4,0x4d,2,
+	  4,- 4,0x4e,2,
+	-12,  4,0x5c,2,
+	- 4,  4,0x5d,2,
+	  4,  4,0x5e,2,
+	128,
+
+	  8,-12,0x04,2|OAM_FLIP_H,
+	  0,-12,0x05,2|OAM_FLIP_H,
+	- 8,-12,0x06,2|OAM_FLIP_H,
+	-16,-12,0x07,2|OAM_FLIP_H,
+	  8,- 4,0x14,2|OAM_FLIP_H,
+	  0,- 4,0x15,2|OAM_FLIP_H,
+	- 8,- 4,0x16,2|OAM_FLIP_H,
+	-16,- 4,0x17,2|OAM_FLIP_H,
+	  8,  4,0x24,2|OAM_FLIP_H,
+	  0,  4,0x25,2|OAM_FLIP_H,
+	- 8,  4,0x26,2|OAM_FLIP_H,
+	-16,  4,0x27,2|OAM_FLIP_H,
 	128
 
 };
@@ -80,5 +134,10 @@ const unsigned char* const metasprite_list[]={
 	metasprite_data+49,
 	metasprite_data+86,
 	metasprite_data+123,
-	metasprite_data+172
+	metasprite_data+172,
+	metasprite_data+209,
+	metasprite_data+258,
+	metasprite_data+295,
+	metasprite_data+332
 };
+
