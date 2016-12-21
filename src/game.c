@@ -14,7 +14,7 @@
 #include "dfh_stadium.h"
 // #include "beckwith_park_nam.h"
 
-const unsigned char palette[16]={ 0x0f,0x00,0x10,0x30,0x0f,0x01,0x21,0x31,0x0f,0x06,0x16,0x26,0x0f,0x09,0x19,0x29 };
+const unsigned char palette[16]={ 0x0f,0x00,0x10,0x30,0x0f,0x01,0x21,0x31,0x0f,0x06,0x16,0x27,0x0f,0x09,0x19,0x29 };
 
 // For drawing the sprites on the correct spot on the screen
 static unsigned int ball_screen_x;
@@ -142,6 +142,11 @@ void draw_screen(void) {
 	else {
 		// Draw car
 		spr = oam_meta_spr(car_2_screen_x, car_2_screen_y, spr, metasprite_list[car_2.sprite_index]);
+
+		if (car_2.z > 0) {
+			// Draw shadow under car
+			spr = oam_spr(car_2_screen_x, car_2_screen_y + car_2.z, SHADOW, 0, spr);
+		}
 	}
 }
 
@@ -155,7 +160,8 @@ void init(void) {
 	car_1.vel_z = 0;
 	car_1.is_boosting = 0;
 	car_1.boost = 33;
-	car_1.direction = LLLL;
+	car_1.direction = RRRR;
+	car_1.sprite_index = CAR_BLUE_R;
 
 	car_2.x = 200;
 	car_2.y = 50;
@@ -165,7 +171,8 @@ void init(void) {
 	car_2.vel_z = 0;
 	car_2.is_boosting = 0;
 	car_2.boost = 33;
-	car_2.direction = RRRR;
+	car_2.direction = LLLL;
+	car_2.sprite_index = CAR_RED_L;
 
 	ball.x = 150;
 	ball.y = 100;
@@ -270,20 +277,29 @@ void car_2_input(void) {
 	if (grounded) {
 		if (pad&PAD_A && car_2.vel_z == 0) {
 			// Jump
+			++car_2.jump_counter;
 			car_2.vel_z = JUMP_ACCEL;
 		}
 		else if (pad&PAD_LEFT && car_2.vel_x > MAX_NEG_VELOCITY) {
 			car_2.vel_x -= ACCEL;
+			car_2.direction = LLLL;
+			car_2.sprite_index = CAR_RED_L;
 		}
 		else if (pad&PAD_RIGHT && car_2.vel_x < MAX_POS_VELOCITY) {
 			car_2.vel_x += ACCEL;
+			car_2.direction = RRRR;
+			car_2.sprite_index = CAR_RED_R;
 		}
 
 		if (pad&PAD_UP && car_2.vel_y > MAX_NEG_VELOCITY) {
 			car_2.vel_y -= ACCEL;
+			car_2.direction = UUUU;
+			car_2.sprite_index = CAR_RED_U;
 		}
 		else if (pad&PAD_DOWN && car_2.vel_y < MAX_POS_VELOCITY) {
 			car_2.vel_y += ACCEL;
+			car_2.direction = DDDD;
+			car_2.sprite_index = CAR_RED_D;
 		}
 	}
 	else {
