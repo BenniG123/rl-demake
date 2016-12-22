@@ -201,6 +201,8 @@ void init(void) {
 	vram_unrle(nametable);
 
 	ppu_on_all();//enable rendering
+
+	delay(60);
 }
 
 void physics_step(void) {
@@ -262,32 +264,51 @@ void car_1_input(void) {
 			car_1.direction = DDDD;
 			car_1.sprite_index = CAR_BLUE_D;
 		}
-		if(pad&PAD_B&&car_1.boost>0)
+
+		// Boost
+		if(pad&PAD_B && car_1.boost > 0)
 		{
-		--car_1.boost;
-		switch(car_1.direction)
-		{
-			case DDDD:
-				car_1.vel_y += BOOST_ACCEL;
-				break;
-			case UUUU:
-				car_1.vel_y -= BOOST_ACCEL;
-				break;
-			case RRRR:
-				car_1.vel_x += BOOST_ACCEL;
-				break;
-			case LLLL:
-				car_1.vel_x -= BOOST_ACCEL;
-				break;
-			default:
-				car_1.vel_y += BOOST_ACCEL;
-		}
+			--car_1.boost;
+			switch(car_1.direction)
+			{
+				case DDDD:
+					if (car_1.vel_y < MAX_POS_VELOCITY_BOOST)
+						car_1.vel_y += BOOST_ACCEL;
+					break;
+				case UUUU:
+					if (car_1.vel_y < MAX_NEG_VELOCITY_BOOST)
+						car_1.vel_y -= BOOST_ACCEL;
+					break;
+				case RRRR:
+					if (car_1.vel_x < MAX_POS_VELOCITY_BOOST)
+						car_1.vel_x += BOOST_ACCEL;
+					break;
+				case LLLL:
+					if (car_1.vel_x < MAX_NEG_VELOCITY_BOOST)
+						car_1.vel_x -= BOOST_ACCEL;
+					break;
+				default:
+					car_1.vel_y += BOOST_ACCEL;
+			}
 		}
 	}
 	else {
 		// Check for flips
 	}
 }
+
+/* void preload_screen(unsigned int level_y)
+{
+	static unsigned char i;
+	for(i=0;i<30;++i)
+	{
+		prepare_row_update(29-i,level_y>>4);//prepare a row, bottom to top
+
+		flush_vram_update(update_list);
+
+		level_y+=8;
+	}
+} */
 
 void car_2_input(void) {
 	// Player 1 input
